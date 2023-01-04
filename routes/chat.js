@@ -6,8 +6,8 @@ router.get('/', (req, res) => {
     res.sendFile('index.html', { root: __dirname + '/../public' });
 });
 // Login Page
-router.get('/chat', (req, res) => {
-    res.sendFile('chat.html', { root: __dirname + '/../public' });
+router.get('/room', (req, res) => {
+    res.sendFile('room.html', { root: __dirname + '/../public' });
 });
 // Register Page
 router.get('/register', (req, res) => {

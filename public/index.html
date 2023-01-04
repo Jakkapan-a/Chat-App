@@ -29,7 +29,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-6 col-lg-4">
                     <div class="login-wrap p-0">
-                        <h3 class="mb-4 text-center">Have an account?</h3>
+                        <h3 class="mb-4 text-center">Chat App</h3>
                         <form id="signin-form" class="signin-form">
                             <div class="form-group">
                                 <input type="text" name="username" class="form-control" placeholder="Username" required>
@@ -84,7 +84,7 @@
             }).done(function(data){
                 localStorage.setItem("auth-token", data.user.token);
                 localStorage.setItem("username", data.user.username);
-                // window.location.href = "chat.html";
+                // window.location.href = "room.html";
           }).fail(function(err){
                 alert(err.message);
                 $("#password-field").val("");
@@ -92,6 +92,14 @@
         });
 
     });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (localStorage.getItem("auth-token")) {
+                window.location.href = "room.html";
+            }
+        });
     </script>
 </body>
 
