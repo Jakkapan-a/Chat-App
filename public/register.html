@@ -7,10 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="asset/css/style.css">
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
         body{
-            background-image: url(asset/images/bg.jpg);
+            background-image: url(assets/images/bg.jpg);
             background-size: cover;
             background-repeat: no-repeat;
             height: 100vh;
@@ -29,17 +29,28 @@
             <div class="row justify-content-center">
                 <div class="col-md-6 col-lg-4">
                     <div class="login-wrap p-0">
-                        <form action="#" class="register-form">
+                        <form id="myForm" class="register-form">
                             <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Username" required>
+                                <input type="text" name="username" class="form-control" placeholder="Username" autocomplete="username">
                             </div>
+                            <!-- Email -->
                             <div class="form-group">
-                                <input id="password-field" type="password" class="form-control" placeholder="Password"
+                                <input type="email" name="email" class="form-control" placeholder="Email" autocomplete="email">
+                            </div>
+                            <!-- Password -->
+                            <div class="form-group">
+                                <input id="password-field" type="password" name="password" class="form-control" placeholder="Password" autocomplete="new-password"
                                     required>
-                                <span toggle="#password-field" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                <i toggle="#password-field" data-pass="password" class="fa fa-fw fa-eye field-icon toggle-password"></i>
+                            </div>
+                            <!-- Confirm Password -->
+                            <div class="form-group">
+                                <input id="confirm-password-field" type="password" name="confirm_password" class="form-control" autocomplete="new-password"
+                                    placeholder="Confirm Password" required>
+                                <span toggle="#confirm-password-field" data-pass="confirm-password" class="fa fa-fw fa-eye field-icon toggle-password"></span>
                             </div>
                             <div class="form-group">
-                                <button type="submit" class="form-control btn btn-primary submit px-3">Sign In</button>
+                                <button type="submit" class="form-control btn btn-primary submit px-3">Register</button>
                             </div>                           
                         </form>
                     </div>
@@ -48,10 +59,85 @@
         </div>
     </section>
 
-    <script src="asset/js/jquery.min.js"></script>
-    <script src="asset/js/popper.js"></script>
-    <script src="asset/js/bootstrap.min.js"></script>
-    <script src="asset/js/main.js"></script>
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/popper.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.validate.js"></script>
+    <!-- <script src="assets/js/main.js"></script> -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Toggle password visibility
+            $(".toggle-password").on("click", function () {
+                var input = $($(this).attr("toggle"));
+                if (input.attr("type") == "password") {
+                    input.attr("type", "text");
+                    $(this).addClass("fa-eye-slash");
+                    $(this).removeClass("fa-eye");
+                } else {
+                    input.attr("type", "password");
+                    $(this).addClass("fa-eye");
+                    $(this).removeClass("fa-eye-slash");
+                }
+            });
+
+            // Validate password and confirm password
+            $("#myForm").validate({
+                rules: {
+                    password: {
+                        required: true,
+                        minlength: 6
+                    },
+                    confirm_password: {
+                        required: true,
+                        minlength: 6,
+                        equalTo: "#password-field"
+                    }
+                },
+                messages: {
+                    password: {
+                        required: "Please provide a password",
+                        minlength: "Your password must be at least 6 characters long"
+                    },
+                    confirm_password: {
+                        required: "Please provide a password",
+                        minlength: "Your password must be at least 6 characters long",
+                        equalTo: "Please ente the same password as above"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback text-white');
+                    element.closest('.form-group').append(error);
+                    error.insertAfter(element);
+                    $(".submit").attr("disabled", true);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                    $(".submit").attr("disabled", false);
+                }
+            });
+            
+            $("#myForm").on("submit", function (e) {
+                e.preventDefault();
+                const data = $(this).serialize();
+                $.ajax({
+                    url: "api/register",
+                    type: "POST",
+                    data: data,
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    }
+                }).done(function (data) {
+                    console.log(data);                   
+                }).fail(function (data) {
+                    console.log(data);
+                });
+            });
+        });
+    </script>
 
 </body>
 
