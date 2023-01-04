@@ -131,9 +131,15 @@
                         "Content-Type": "application/x-www-form-urlencoded"
                     }
                 }).done(function (data) {
-                    console.log(data);                   
+                    // Check token
+                    if (data.user.token) {
+                        localStorage.setItem("auth-token", data.user.token);
+                        localStorage.setItem("Username", data.user.username);                        
+                        window.location.href = "chat.html";
+                    }   
+
                 }).fail(function (data) {
-                    console.log(data);
+                    console.log(data.responseText);
                 });
             });
         });

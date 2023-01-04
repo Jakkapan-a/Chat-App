@@ -3,10 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <title>Chat</title>
 </head>
 <body>
-    Chat
+    
+    
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/popper.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="assets/js/jquery.validate.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('auth-token');
+            $.ajax(
+                {
+                    url: 'api/is-user',
+                    type: 'POST',
+                    headers: {
+                        'x-auth-token': token
+                    }
+                }        
+            ).done(function(data) {
+                console.log(data.data);
+                if(!data.data){
+                    // Remove token and username from localStorage
+                    localStorage.removeItem('auth-token');
+                    localStorage.removeItem('username');
+                    window.location.href = 'index.html';
+                }
+            }).fail(function(err) {
+                console.log(err);
+            });
+        });
+    </script>
 </body>
 </html>

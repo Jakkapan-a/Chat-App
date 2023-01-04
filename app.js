@@ -2,17 +2,17 @@ const express = require('express');
 const app = express();
 const chat = require('./routes/chat');
 const user = require('./routes/user');
-// env variables
-require('dotenv').config();
+const bodyParser = require('body-parser');
+const cors = require('cors');
+// require('express-async-errors');
 
-// public folder
+require('dotenv').config();
+app.use(cors());
 app.use(express.static('public'));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use('/', chat);
 app.use('/api',user)
 
-const {User,findById} = require('./controllers/user');
-// Find user by id
-app.get('/user/:id',findById);
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
 });
