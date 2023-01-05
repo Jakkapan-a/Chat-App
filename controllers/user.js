@@ -2,6 +2,7 @@ const { query } = require("../db/mysql");
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+
 exports.findById = async (req,res) => {
     const id = req.params.id;
     let [result] = await query('SELECT * FROM users WHERE id = ?', [id]);

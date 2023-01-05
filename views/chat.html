@@ -186,10 +186,24 @@
     <script src="assets/js/bootstrap.min.js"></script>
     <script src="assets/js/jquery.validate.js"></script>
     <script src="assets/js/is-auth.js"></script>
+    <!-- <script src="assets/js/socket.io.min.js"></script> -->
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const token = localStorage.getItem('auth-token');
-           
+
+            const socket = io();
+            socket.on('connect', () => {
+                socket.emit('authenticate', { token });
+            });
+            socket.on('authenticated', (data) => {
+                console.log(data);
+            });
+            // Receive message from server
+            socket.on('message', (data) => {
+                console.log(data);
+            });
+
         });
     </script>
 </body>

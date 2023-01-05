@@ -84,7 +84,7 @@
             }).done(function(data){
                 localStorage.setItem("auth-token", data.user.token);
                 localStorage.setItem("username", data.user.username);
-                // window.location.href = "room.html";
+                window.location.href = "chat";
           }).fail(function(err){
                 alert(err.message);
                 $("#password-field").val("");
@@ -97,7 +97,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             if (localStorage.getItem("auth-token")) {
-                window.location.href = "room";
+                window.location.href = "chat";
             }
         });
     </script>
