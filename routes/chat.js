@@ -14,5 +14,9 @@ router.get('/register', (req, res) => {
     // Send the register.html file in the public folder
     res.sendFile('register.html', { root: __dirname + '/../public' });
 });
-
+// Chat Page
+router.get('/chat', (req, res) => {
+    // Send the chat.html file in the public folder
+    res.sendFile('chat.html', { root: __dirname + '/../public' });
+});
 module.exports = router;
