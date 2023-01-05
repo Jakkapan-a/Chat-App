@@ -80,7 +80,7 @@
             <div class="card">
                 <div class="row g-0">
                     <!-- User -->
-                    <div class="col-12 col-lg-5 col-xl-3 border-right chat-messages">
+                    <div class="col-12 col-lg-5 col-xl-3 border-right chat-messages" id="chat-user">
                         <!-- Search -->
                         <div class="px-4 d-none d-md-block">
                             <div class="d-flex align-items-center">
@@ -90,6 +90,17 @@
                             </div>
                         </div>
                         <!-- End Search -->
+                        <a href="#" class="list-group-item list-group-item-action border-0">
+                            <div class="badge bg-success float-right">5</div>
+                            <div class="d-flex align-items-start">
+                                <img src="https://bootdey.com/img/Content/avatar/avatar5.png" class="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40">
+                                <div class="flex-grow-1 ml-3">
+                                    Public Room
+                                    <div class="small"><span class="fas fa-circle chat-online"></span> Online</div>
+                                </div>
+                            </div>
+                        </a>
+
                         <a href="#" class="list-group-item list-group-item-action border-0">
                             <div class="badge bg-success float-right">5</div>
                             <div class="d-flex align-items-start">
@@ -124,7 +135,6 @@
                     </div>
                     <!-- Message chat -->
                     <div class="col-12 col-lg-7 col-xl-9">
-
                         <div class="py-2 px-4 border-bottom d-none d-lg-block">
                             <div class="d-flex align-items-center py-1">
                                 <div class="position-relative">
@@ -141,9 +151,9 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <div class="position-relative">
-                            <div class="chat-messages p-4">
+                            <div class="chat-messages p-4" id="#chat-messages">
                                 <!-- Message right -->
                                 <div class="chat-message-right pb-4">
                                     <div>
@@ -165,7 +175,8 @@
                                         <div class="font-weight-bold mb-1">Sharon Lessman</div>
                                         Sit meis deleniti eu, pri vidit meliore docendi ut, an eum erat animal commodo.
                                     </div>
-                                </div>                                  
+                                </div>   
+                                <!--  -->
                             </div>
                         </div>
     
@@ -186,24 +197,32 @@
     <script src="assets/js/bootstrap.min.js"></script>
     <script src="assets/js/jquery.validate.js"></script>
     <script src="assets/js/is-auth.js"></script>
-    <!-- <script src="assets/js/socket.io.min.js"></script> -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('auth-token');
+            //1 Update the user's status to online
 
+
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('auth-token');
             const socket = io();
             socket.on('connect', () => {
                 socket.emit('authenticate', { token });
             });
-            socket.on('authenticated', (data) => {
+            socket.on('unauthorized', (data) => {
                 console.log(data);
+                // If the user is not authenticated, they will be redirected to the login page
+                // window.location.href = '/';
             });
             // Receive message from server
             socket.on('message', (data) => {
                 console.log(data);
             });
 
+            
         });
     </script>
 </body>

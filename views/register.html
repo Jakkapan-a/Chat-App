@@ -15,6 +15,15 @@
             background-repeat: no-repeat;
             height: 100vh;
         }
+        .password{
+            position: relative;
+        }
+        .password i{
+            position: absolute;
+            right: 10%;
+            top: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -38,16 +47,16 @@
                                 <input type="email" name="email" class="form-control" placeholder="Email" autocomplete="email">
                             </div>
                             <!-- Password -->
-                            <div class="form-group">
-                                <input id="password-field" type="password" name="password" class="form-control" placeholder="Password" autocomplete="new-password"
+                            <div class="form-group password">
+                                <input id="password-field" type="password" name="password" class="form-control " placeholder="Password" autocomplete="new-password"
                                     required>
                                 <i toggle="#password-field" data-pass="password" class="fa fa-fw fa-eye field-icon toggle-password"></i>
                             </div>
                             <!-- Confirm Password -->
-                            <div class="form-group">
-                                <input id="confirm-password-field" type="password" name="confirm_password" class="form-control" autocomplete="new-password"
+                            <div class="form-group password">
+                                <input id="confirm-password-field" type="password" name="confirm_password" class="form-control " autocomplete="new-password"
                                     placeholder="Confirm Password" required>
-                                <span toggle="#confirm-password-field" data-pass="confirm-password" class="fa fa-fw fa-eye field-icon toggle-password"></span>
+                                <i toggle="#confirm-password-field" data-pass="confirm-password" class="fa fa-fw fa-eye field-icon toggle-password"></i>
                             </div>
                             <div class="form-group">
                                 <button type="submit" class="form-control btn btn-primary submit px-3">Register</button>
@@ -134,7 +143,7 @@
                     // Check token
                     if (data.user.token) {
                         localStorage.setItem("auth-token", data.user.token);
-                        localStorage.setItem("Username", data.user.username);                        
+                        localStorage.setItem("username", data.user.username);                        
                         window.location.href = "room.html";
                     }   
 

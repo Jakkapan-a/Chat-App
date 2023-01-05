@@ -28,6 +28,12 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: false}));
-app.use('/', chat);
 app.use('/api',user)
+app.use('/', chat);
+// If no route is matched by now, it must be a default 
+app.use((req, res, next) => {
+    res.status(404).send('Page not found');
+});
+
+
 
