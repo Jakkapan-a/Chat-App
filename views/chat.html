@@ -154,7 +154,7 @@
                         </div>
 
                         <div class="position-relative">
-                            <div class="chat-messages p-4" id="#chat-messages">
+                            <div class="chat-messages p-4" id="chat-messages">
                                 <!-- Message right -->
                                 <div class="chat-message-right pb-4">
                                     <div>
@@ -184,10 +184,12 @@
                         </div>
 
                         <div class="flex-grow-0 py-3 px-4 border-top">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Type your message">
-                                <button class="btn btn-primary">Send</button>
-                            </div>
+                            <form id="formMsg">
+                                <div class="input-group">
+                                    <input type="text" name="msg" class="form-control" placeholder="Type your message">
+                                    <button type="submit" class="btn btn-primary">Send</button>
+                                </div>
+                            </form>
                         </div>
 
                     </div>
@@ -201,32 +203,63 @@
     <script src="assets/js/jquery.validate.js"></script>
     <script src="assets/js/is-auth.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-
     <script>
-        const socket = io('http://localhost:3000', {
+        const chatMessage = (data) => {
+            let html = `<!-- Message right --> `
+            if (data.user_id == localStorage.getItem('id')) {
+                html += `<div class="chat-message-right pb-4">
+                        <div>
+                            <img src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                                class="rounded-circle mr-1" alt="Chris Wood" width="40" height="40">
+                            <div class="text-muted small text-nowrap mt-2">2:33 am</div>
+                        </div>
+                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">
+                            <div class="font-weight-bold mb-1">You</div>
+                            ${data.msg}
+                        </div>
+                    </div>`
+            } else {
+                html += `
+                    <!-- Message left  -->
+                    <div class="chat-message-left pb-4">
+                        <div>
+                            <img src="https://bootdey.com/img/Content/avatar/avatar3.png"
+                                class="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40">
+                            <div class="text-muted small text-nowrap mt-2">2:34 am</div>
+                        </div>
+                        <div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
+                            <div class="font-weight-bold mb-1">${data.username}</div>
+                            ${data.msg}
+                        </div>
+                    </div>
+                    <!--  -->
+                    `
+            }
+            return html;
+        }
+    </script>
+    <script>
+        let socket = io('http://localhost:3000/chat', {
             auth: {
                 token: localStorage.getItem('auth-token')
-            },
-            reconnection: true,
-            reconnectionDelay: 1000,
-            reconnectionDelayMax: 5000,
+            }
         });
         document.addEventListener('DOMContentLoaded', function () {
-            const token = localStorage.getItem('auth-token');
-            // socket.on('connect', () => {
-            //     socket.emit('authenticate', { token });
-            // });
-            // socket.on('unauthorized', (data) => {
-            //     // console.log(data);
-            //     // If the user is not authenticated, they will be redirected to the login page
-            //     // window.location.href = '/';
-            // });
-            // // Receive message from server
-            // socket.on('message', (data) => {
-            //     // console.log(data);
-            // });
-
-
+            //const token = localStorage.getItem('auth-token');
+            socket.on('connect', () => {
+                console.log("connected");
+                // Disconnect all connections when the page is refreshed
+                window.addEventListener('beforeunload', () => {
+                    socket.disconnect();
+                    console.log("After disconnect")
+                });
+            });
+            socket.on('message', (data) => {
+                console.log("message : ", data);
+                $('#chat-messages').append(chatMessage(data));
+                // Scroll to bottom
+                $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+            })
         });
     </script>
 
@@ -249,12 +282,36 @@
                 const element = data[i];
                 $('#list-users').append(getUser(element));
                 $(`#${data[i].id}`).on('click', getMessages)
-
             }
         });
         // Load message
         document.addEventListener('DOMContentLoaded', async function () {
-        });
+            $('#formMsg').on('submit', async function (e) {
+                e.preventDefault();
+                const msg = $(this).find('input[name="msg"]').val();
+                socket.emit('msgToServer', { "msg": msg });
+                console.log("msg : ", msg);
+                // Clear input
+                $(this).find('input[name="msg"]').val('');
+            });
+            joinChanel(0);
+            // 1. Get list message
+            getMassage({ chanelId: 0 }).then((data) => {
+                    // Clear message
+                    $('#chat-messages').empty();
+                    // Append message
+                    for (let i = 0; i < data.history.length; i++) {
+                        // console.log(data.history[i]);
+                        const element = data.history[i];
+                        $('#chat-messages').append(chatMessage(element));
+                        // Scroll to bottom
+                        $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+                    }
+                }).catch((err) => {
+                    console.log("Error : ", err);
+                });
+
+        }); 
     </script>
 
     <script>
@@ -293,7 +350,23 @@
                 });
             });
         }
-
+        const getMassage = async (data) => {
+            // Get list user bu ajax
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: '/msg/history',
+                    type: 'POST',
+                    data: data,
+                    headers: {
+                        "x-auth-token": localStorage.getItem('auth-token')
+                    }
+                }).done(function (data) {
+                    resolve(data);
+                }).fail(function (err) {
+                    reject(err);
+                });
+            });
+        }
         const getUser = (data) => {
             // <div class="badge bg-success float-right">1</div>
             const html = `
@@ -311,24 +384,37 @@
         }
 
         const getMessages = async (data) => {
-            console.log("Data : ", data);
             const id = data.currentTarget.id;
-            // get chanel data
-            // const chanel = data.currentTarget.dataset.chanel;
             await getChanel({ id: id }).then((data) => {
-                console.log("Chanel : ", data.chanelId);
+                // console.log("Chanel : ", data.chanelId);
                 joinChanel(data.chanelId);
+                // Get message history
+                getMassage({ chanelId: data.chanelId }).then((data) => {
+                    // Clear message
+                    $('#chat-messages').empty();
+                    // Append message
+                    for (let i = 0; i < data.history.length; i++) {
+                        // console.log(data.history[i]);
+                        const element = data.history[i];
+                        $('#chat-messages').append(chatMessage(element));
+                        // Scroll to bottom
+                        $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+                    }
+                }).catch((err) => {
+                    console.log("Error : ", err);
+                });
+
             }).catch((err) => {
                 console.log("Error : ", err);
             });
+            // Windows Scroll to bottom
+            $(window).scrollTop($(document).height());
         }
 
         const joinChanel = (chanel) => {
             console.log("Join chanel : ", chanel);
             // Join chanel
-            socket.emit('joinRoom', chanel, (numberOfMember) => {
-                console.log("Join chanel success : ", numberOfMember);
-            });
+            socket.emit('joinRoom', chanel);
         }
     </script>
 </body>

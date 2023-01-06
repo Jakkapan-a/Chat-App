@@ -11,7 +11,6 @@ exports.getChanel = async (req, res) => {
         const d = data.find(item => item)
         if(typeof d === 'object' && d !== null){
             chanelId = d.chanel_id;
-            console.log(chanelId)
             return res.json({chanelId: chanelId});
         }
     }
@@ -26,3 +25,14 @@ exports.getChanel = async (req, res) => {
     }
    return res.json({chanelId: chanelId});
 };
+
+exports.getHistory = async (req, res) => {
+    const userId = req.userId;
+    const chanelId = req.body.chanelId?req.body.chanelId:0;
+    const username = req.username ? req.username : '';
+    let result = await query("SELECT * FROM chat.messages where chanel_id = ? limit 10", [chanelId]);
+    // Push username to result
+    result = result.map(item =>{return {...item, username: username}});
+    // console.log(result);
+    return res.json({history:result});
+}

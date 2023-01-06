@@ -85,7 +85,8 @@
                 type: "POST",
                 data: data,               
             }).done(function(data){
-                localStorage.setItem("auth-token", data.user.token);
+                localStorage.setItem("auth-token", data.user.token);                
+                localStorage.setItem("id", data.user.id);
                 localStorage.setItem("username", data.user.username);
                 window.location.href = "chat";
           }).fail(function(err){
