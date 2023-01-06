@@ -39,7 +39,7 @@ exports.createUser = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRES_IN ? process.env.JWT_EXPIRES_IN : "1h",
     }
   );
-  res.json({
+  return res.json({
     user: {
       id: result.insertId,
       username: username,
@@ -119,16 +119,16 @@ exports.isAuth = async (req, res) => {
 exports.listUser = async (req, res) => {
   // if start and end is not defined, then return all users
   let data = [];
-  const { start, end, total } = req.body;
+  const { start, end, total } = req.query;
   if (total !== undefined && !start && !end) {
-    data= await query("SELECT count(*) as total FROM chat.users");
+    data= await query("SELECT count(*) as total FROM chat.users where not id = ?",[req.userId]);
     return res.status(200).json({ total: data ? data[0].total : 0 });
   }
  // if start and end is defined, then return users between start and end
   if (start && end) {
     data = await query(
-      "SELECT  id ,username, email, status FROM chat.users order by status and id desc limit ?,?",
-      [start, end]
+      "SELECT  id ,username, email, status FROM chat.users where not id = ? order by status and id desc limit ?,?",
+      [req.userId,start, end]
     );
     if (!data) {
       return res.status(200).json({
@@ -138,7 +138,7 @@ exports.listUser = async (req, res) => {
     }
   } else {
     data = await query(
-        "SELECT id ,username, email, status FROM chat.users order by status and id desc limit 10"
+        "SELECT id ,username, email, status FROM chat.users where not id = ? order by status and id desc limit 10",[req.userId]
       );
       if (!data) {
         return res.status(200).json({

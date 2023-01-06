@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const chat = require('./routes/chat');
 const user = require('./routes/user');
+const massage = require('./routes/massage');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
@@ -28,7 +29,8 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({extended: false}));
-app.use('/api',user)
+app.use('/api',user);
+app.use('/msg', massage);
 app.use('/', chat);
 // If no route is matched by now, it must be a default 
 app.use((req, res, next) => {
