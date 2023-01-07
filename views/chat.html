@@ -186,7 +186,8 @@
                         <div class="flex-grow-0 py-3 px-4 border-top">
                             <form id="formMsg">
                                 <div class="input-group">
-                                    <input type="text" name="msg" class="form-control" placeholder="Type your message">
+                                    <input type="text" name="msg" class="form-control msg"
+                                        placeholder="Type your message">
                                     <button type="submit" class="btn btn-primary">Send</button>
                                 </div>
                             </form>
@@ -239,28 +240,8 @@
         }
     </script>
     <script>
-        let socket = io('http://localhost:3000/chat', {
-            auth: {
-                token: localStorage.getItem('auth-token')
-            }
-        });
-        document.addEventListener('DOMContentLoaded', function () {
-            //const token = localStorage.getItem('auth-token');
-            socket.on('connect', () => {
-                console.log("connected");
-                // Disconnect all connections when the page is refreshed
-                window.addEventListener('beforeunload', () => {
-                    socket.disconnect();
-                    console.log("After disconnect")
-                });
-            });
-            socket.on('message', (data) => {
-                console.log("message : ", data);
-                $('#chat-messages').append(chatMessage(data));
-                // Scroll to bottom
-                $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
-            })
-        });
+
+
     </script>
 
     <script>
@@ -286,31 +267,62 @@
         });
         // Load message
         document.addEventListener('DOMContentLoaded', async function () {
-            $('#formMsg').on('submit', async function (e) {
-                e.preventDefault();
-                const msg = $(this).find('input[name="msg"]').val();
-                socket.emit('msgToServer', { "msg": msg });
-                console.log("msg : ", msg);
-                // Clear input
-                $(this).find('input[name="msg"]').val('');
-            });
-            joinChanel(0);
             // 1. Get list message
-            getMassage({ chanelId: 0 }).then((data) => {
-                    // Clear message
-                    $('#chat-messages').empty();
-                    // Append message
-                    for (let i = 0; i < data.history.length; i++) {
-                        // console.log(data.history[i]);
-                        const element = data.history[i];
-                        $('#chat-messages').append(chatMessage(element));
-                        // Scroll to bottom
-                        $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
-                    }
-                }).catch((err) => {
-                    console.log("Error : ", err);
-                });
+            await getMassage({ chanelId: 0 }).then((data) => {
+                // Clear message
+                $('#chat-messages').empty();
+                // Append message Descending
+                renderHtml(data);
+            }).catch((err) => {
+                console.log("Error : ", err);
+            });
 
+            // Socket IO 
+            let socket = '';
+            const socketIO = io('http://localhost:3000/', {
+                auth: {
+                    token: localStorage.getItem('auth-token')
+                }
+            });
+            socketIO.on('ns', (data) => {
+                console.log(data);
+                joinNs(data.ns);
+            });
+            const joinNs = (endpoint) => {
+                if (socket) {
+                    socket.disconnect();
+                }
+                socket = io(`http://localhost:3000${endpoint}`, {
+                    auth: {
+                        token: localStorage.getItem('auth-token')
+                    }
+                });
+                socket.on('connect', (data) => {
+                    console.log('Conn NS')
+                })
+                socket.on('message', (data) => {
+                    console.log("message : ", data);
+                    $('#chat-messages').append(chatMessage(data));
+                    // Scroll to bottom
+                    $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+                })
+                joinChanel(0);
+                $('#formMsg').on('submit', function (e) {
+                    e.preventDefault();
+                    const msg = $(this).find('input[name="msg"]').val();
+                    console.log("msg : ", msg);
+                    socket.emit('msgToServer', { "msg": msg });
+                    // Clear input
+                    $("#formMsg").trigger("reset");
+
+                });
+            }
+
+            const joinChanel = (chanel) => {
+                console.log("Join chanel : ", chanel);
+                // Join chanel
+                socket.emit('joinRoom', chanel);
+            }
         }); 
     </script>
 
@@ -392,7 +404,8 @@
                 getMassage({ chanelId: data.chanelId }).then((data) => {
                     // Clear message
                     $('#chat-messages').empty();
-                    // Append message
+                    // Append message Descending
+
                     for (let i = 0; i < data.history.length; i++) {
                         // console.log(data.history[i]);
                         const element = data.history[i];
@@ -411,12 +424,17 @@
             $(window).scrollTop($(document).height());
         }
 
-        const joinChanel = (chanel) => {
-            console.log("Join chanel : ", chanel);
-            // Join chanel
-            socket.emit('joinRoom', chanel);
+        const renderHtml = (data) => {
+            for (let i = data.history.length - 1; i >= 0; i--) {
+                const element = data.history[i];
+                $('#chat-messages').append(chatMessage(element));                          
+            }
+            // Scroll to bottom     
+            $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
         }
     </script>
+
+
 </body>
 
 </html>

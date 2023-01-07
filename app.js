@@ -14,7 +14,6 @@ const server =app.listen(3000, () => {
 
 const socket = require('socket.io');
 const io = socket(server,{
-
     serveClient: true,
     cors: {
         methods: ['GET', 'POST'],
@@ -24,8 +23,7 @@ const io = socket(server,{
 
 app.use((req, res, next) => {    
     // io engine is added to the request object
-    req.io = io;
-    
+    req.io = io;    
     res.ns = io.of('/chat');
     next();
 });

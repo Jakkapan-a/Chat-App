@@ -30,7 +30,7 @@ exports.getHistory = async (req, res) => {
     const userId = req.userId;
     const chanelId = req.body.chanelId?req.body.chanelId:0;
     const username = req.username ? req.username : '';
-    let result = await query("SELECT * FROM chat.messages where chanel_id = ? limit 10", [chanelId]);
+    let result = await query("SELECT * FROM chat.messages where chanel_id = ? order by id desc limit 10", [chanelId]);
     // Push username to result
     result = result.map(item =>{return {...item, username: username}});
     // console.log(result);
