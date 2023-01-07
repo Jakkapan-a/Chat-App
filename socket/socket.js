@@ -4,7 +4,7 @@ const { query } = require("../db/mysql");
 exports.socket = (req, res, next) => {
   if (!req.io.sockets._events.connection) {
     let ns = res.ns;
-    req.io.on("connection", async (socket) => {
+    req.io.on("connection", (socket) => {
       socket.emit("ns", { ns: "/chat" });
       const token = socket.handshake.auth.token;
       if (token) {
@@ -17,7 +17,7 @@ exports.socket = (req, res, next) => {
         // Disconnect client
         socket.disconnect();
       }
-      socket.emit("userUpdate", await listUser(socket.userId));
+    //   socket.emit("userUpdate", await listUser(socket.userId));
     });
 
     ns.on("connection", (socket) => {

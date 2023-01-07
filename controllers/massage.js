@@ -27,12 +27,17 @@ exports.getChanel = async (req, res) => {
 };
 
 exports.getHistory = async (req, res) => {
-    const userId = req.userId;
+    // const userId = req.userId;
     const chanelId = req.body.chanelId?req.body.chanelId:0;
-    const username = req.username ? req.username : '';
-    let result = await query("SELECT * FROM chat.messages where chanel_id = ? order by id desc limit 10", [chanelId]);
+    // const username = req.username ? req.username : '';
+    let result = await query(`
+    SELECT m.msg, m.user_id , u.username, m.created_at 
+    FROM chat.messages as m 
+    join chat.users as u on u.id = m.user_id
+    where m.chanel_id = ? 
+    order by m.id desc limit 20`, [chanelId]);
     // Push username to result
-    result = result.map(item =>{return {...item, username: username}});
+    // result = result.map(item =>{return {...item, username: username}});
     // console.log(result);
     return res.json({history:result});
 }

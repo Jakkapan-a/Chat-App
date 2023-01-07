@@ -13,6 +13,8 @@ const connection = async ()=>{
 const query = async (sql, params) => {
     const conn = await connection();
     const [result] = await conn.execute(sql, params);
+    // Destroy connection
+    conn.end();
     return result;
 }
 
